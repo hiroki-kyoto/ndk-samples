@@ -91,7 +91,7 @@ class NDKCamera {
   ACameraCaptureSession_captureCallbacks* GetCaptureCallback();
 
  public:
-  NDKCamera();
+  NDKCamera(acamera_metadata_enum_acamera_lens_facing facing_);
   ~NDKCamera();
   void EnumerateCamera(void);
   bool MatchCaptureSizeRequest(ANativeWindow* display, ImageFormat* view,

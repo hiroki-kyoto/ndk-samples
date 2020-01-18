@@ -1,18 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId 'com.sample.camera.basic'
-        minSdkVersion  24
+        minSdkVersion  28
         targetSdkVersion 28
         ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            abiFilters 'arm64-v8a'
         }
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_STL=c++_static'
+                cppFlags "-std=c++11"
+                arguments '-DANDROID_STL=c++_static', "-DANDROID_ARM_MODE=arm", "-DANDROID_ARM_NEON=TRUE"
+                abiFilters 'arm64-v8a'
             }
         }
     }

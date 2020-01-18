@@ -61,7 +61,7 @@ void CameraEngine::CreateCamera(void) {
   int32_t displayRotation = GetDisplayRotation();
   rotation_ = displayRotation;
 
-  camera_ = new NDKCamera();
+  camera_ = new NDKCamera(acamera_metadata_enum_acamera_lens_facing::ACAMERA_LENS_FACING_FRONT);
   ASSERT(camera_, "Failed to Create CameraObject");
 
   int32_t facing = 0, angle = 0, imageRotation = 0;

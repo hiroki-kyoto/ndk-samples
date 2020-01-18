@@ -38,7 +38,7 @@ NDKCamera::NDKCamera()
       activeCameraId_(""),
       outputContainer_(nullptr),
       captureSessionState_(CaptureSessionState::MAX_STATE),
-      cameraFacing_(ACAMERA_LENS_FACING_BACK),
+      cameraFacing_(ACAMERA_LENS_FACING_FRONT),
       cameraOrientation_(0),
       exposureTime_(static_cast<int64_t>(0)) {
   valid_ = false;
@@ -48,11 +48,11 @@ NDKCamera::NDKCamera()
   cameraMgr_ = ACameraManager_create();
   ASSERT(cameraMgr_, "Failed to create cameraManager");
 
-  // Pick up a back-facing camera to preview
+  // Pick up a front-facing camera to preview
   EnumerateCamera();
   ASSERT(activeCameraId_.size(), "Unknown ActiveCameraIdx");
 
-  // Create back facing camera device
+  // Create front facing camera device
   CALL_MGR(openCamera(cameraMgr_, activeCameraId_.c_str(), GetDeviceListener(),
                       &cameras_[activeCameraId_].device_));
 
@@ -189,7 +189,9 @@ bool NDKCamera::MatchCaptureSizeRequest(int32_t requestWidth,
   // format of the data: format, width, height, input?, type int32
   bool foundIt = false;
   DisplayDimension foundRes(4000, 4000);
+  DisplayDimension targetRes(480, 360);
   DisplayDimension maxJPG(0, 0);
+  bool targetPreviewSizeFound = false;
 
   for (int i = 0; i < entry.count; i += 4) {
     int32_t input = entry.data.i32[i + 3];
@@ -199,8 +201,15 @@ bool NDKCamera::MatchCaptureSizeRequest(int32_t requestWidth,
     if (format == AIMAGE_FORMAT_YUV_420_888 || format == AIMAGE_FORMAT_JPEG) {
       DisplayDimension res(entry.data.i32[i + 1],
                            entry.data.i32[i + 2]);
+      LOGW("Size: (%d, %d)", res.width(), res.height());
+      if ( res == targetRes ){
+        targetPreviewSizeFound = true;
+        foundIt = true;
+        foundRes = res;
+        continue;
+      }
       if (!disp.IsSameRatio(res)) continue;
-      if (format == AIMAGE_FORMAT_YUV_420_888 && foundRes > res) {
+      if (format == AIMAGE_FORMAT_YUV_420_888 && foundRes > res && (!targetPreviewSizeFound)) {
         foundIt = true;
         foundRes = res;
       } else if (format == AIMAGE_FORMAT_JPEG && res > maxJPG) {
@@ -228,6 +237,10 @@ bool NDKCamera::MatchCaptureSizeRequest(int32_t requestWidth,
     if (resCap)
       *resCap = *resView;
   }
+
+  // display the final selected resolution
+  LOGW("Preview Size: (%d, %d)", resView->width, resView->height);
+
   resView->format = AIMAGE_FORMAT_YUV_420_888;
   if (resCap) resCap->format = AIMAGE_FORMAT_JPEG;
   return foundIt;
@@ -327,7 +340,7 @@ NDKCamera::~NDKCamera() {
 /**
  * EnumerateCamera()
  *     Loop through cameras on the system, pick up
- *     1) back facing one if available
+ *     1) front facing one if available
  *     2) otherwise pick the first one reported to us
  */
 void NDKCamera::EnumerateCamera() {
@@ -355,7 +368,7 @@ void NDKCamera::EnumerateCamera() {
         cam.owner_ = false;
         cam.device_ = nullptr;
         cameras_[cam.id_] = cam;
-        if (cam.facing_ == ACAMERA_LENS_FACING_BACK) {
+        if (cam.facing_ == ACAMERA_LENS_FACING_FRONT) {
           activeCameraId_ = cam.id_;
         }
         break;
@@ -366,7 +379,7 @@ void NDKCamera::EnumerateCamera() {
 
   ASSERT(cameras_.size(), "No Camera Available on the device");
   if (activeCameraId_.length() == 0) {
-    // if no back facing camera found, pick up the first one to use...
+    // if no front facing camera found, pick up the first one to use...
     activeCameraId_ = cameras_.begin()->second.id_;
   }
   ACameraManager_deleteCameraIdList(cameraIds);

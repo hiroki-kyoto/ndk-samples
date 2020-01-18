@@ -1,15 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId "com.sample.textureview"
-        minSdkVersion 24
+        minSdkVersion 28
         targetSdkVersion 28
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_STL=c++_static'
+                cppFlags "-std=c++11"
+                arguments '-DANDROID_STL=c++_static', "-DANDROID_ARM_MODE=arm", "-DANDROID_ARM_NEON=TRUE"
+                abiFilters 'arm64-v8a'
             }
         }
     }
@@ -32,5 +34,5 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-compat:25.3.1'
+    implementation 'com.android.support:support-compat:28.0.0'
 }

@@ -72,8 +72,8 @@ const ImageFormat& CameraAppEngine::GetCompatibleCameraRes() const {
 }
 
 int CameraAppEngine::GetCameraSensorOrientation(int32_t requestFacing) {
-  ASSERT(requestFacing == ACAMERA_LENS_FACING_BACK,
-         "Only support rear facing camera");
+  //ASSERT(requestFacing == ACAMERA_LENS_FACING_BACK,
+  //       "Only support rear facing camera");
   int32_t facing = 0, angle = 0;
   if (camera_->GetSensorOrientation(&facing, &angle) ||
       facing == requestFacing) {

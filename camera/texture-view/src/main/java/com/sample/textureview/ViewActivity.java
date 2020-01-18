@@ -37,7 +37,7 @@ import android.view.View;
 import android.util.Size;
 import android.widget.FrameLayout;
 
-import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
 
 public class ViewActivity extends Activity
         implements TextureView.SurfaceTextureListener,
@@ -83,7 +83,7 @@ public class ViewActivity extends Activity
                     int deviceLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
                     int facing = characteristics.get(CameraCharacteristics.LENS_FACING);
                     if (deviceLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
-                            facing == LENS_FACING_BACK) {
+                            facing == LENS_FACING_FRONT) {
                         camera2Dev =  false;
                     }
                 }

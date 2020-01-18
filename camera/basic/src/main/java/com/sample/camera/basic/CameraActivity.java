@@ -40,7 +40,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
 
 class CameraSeekBar {
     int _progress;
@@ -134,7 +134,7 @@ public class CameraActivity extends NativeActivity
                     int deviceLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
                     int facing = characteristics.get(CameraCharacteristics.LENS_FACING);
                     if (deviceLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
-                        facing == LENS_FACING_BACK) {
+                        facing == LENS_FACING_FRONT) {
                         camera2Dev =  false;
                     }
                 }

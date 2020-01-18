@@ -22,6 +22,22 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../common)
 # now build app's shared lib
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Werror")
 
+# opencv configuration
+set( OpenCV_ANDROID_SDK F:/Downloads/opencv-4.1.2-android-sdk/OpenCV-android-sdk )
+set( OpenCV_DIR ${OpenCV_ANDROID_SDK}/sdk/native/jni )
+
+find_package(OpenCV REQUIRED core calib3d features2d)
+if(OpenCV_FOUND)
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    message(STATUS "OpenCV library status:")
+    message(STATUS "    version: ${OpenCV_VERSION}")
+    message(STATUS "    libraries: ${OpenCV_LIBS}")
+    message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
+else(OpenCV_FOUND)
+    message(FATAL_ERROR "OpenCV library not found")
+endif(OpenCV_FOUND)
+
+
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -37,4 +53,6 @@ add_library(camera_textureview SHARED
 target_include_directories(camera_textureview PRIVATE ${COMMON_SOURCE_DIR})
 
 # add lib dependencies
-target_link_libraries(camera_textureview dl android log m camera2ndk)
+target_link_libraries(camera_textureview dl android log m camera2ndk ${OpenCV_LIBRARIES})
+# add open mp for opencv
+SET( CMAKE_CXX_FLAGS "-fopenmp ${CMAKE_CXX_FLAGS}" )

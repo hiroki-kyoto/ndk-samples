@@ -31,12 +31,12 @@
 static const uint64_t kMinExposureTime = static_cast<uint64_t>(1000000);
 static const uint64_t kMaxExposureTime = static_cast<uint64_t>(250000000);
 
-NDKCamera::NDKCamera()
+NDKCamera::NDKCamera(acamera_metadata_enum_acamera_lens_facing facing_)
     : cameraMgr_(nullptr),
       activeCameraId_(""),
       outputContainer_(nullptr),
       captureSessionState_(CaptureSessionState::MAX_STATE),
-      cameraFacing_(ACAMERA_LENS_FACING_BACK),
+      cameraFacing_(facing_),
       cameraOrientation_(0),
       exposureTime_(static_cast<int64_t>(0)) {
   valid_ = false;
