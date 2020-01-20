@@ -35,12 +35,14 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.util.Size;
+import android.view.Window;
 import android.widget.FrameLayout;
 
 import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
 
 public class ViewActivity extends Activity
         implements TextureView.SurfaceTextureListener,
+        SurfaceTexture.OnFrameAvailableListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
     long ndkCamera_;
     private TextureView textureView_;
@@ -112,7 +114,14 @@ public class ViewActivity extends Activity
                 cameraPreviewSize_.getHeight());
         surface_ = new Surface(surface);
         onPreviewSurfaceCreated(ndkCamera_, surface_);
+        surface.setOnFrameAvailableListener(this);
     }
+
+
+    public void onFrameAvailable(SurfaceTexture surface){
+        onFrameReady(ndkCamera_, surface_);
+    }
+
 
     private void resizeTextureView(int textureWidth, int textureHeight) {
         int rotation = getWindowManager().getDefaultDisplay().getRotation();
@@ -255,6 +264,8 @@ public class ViewActivity extends Activity
     private native void onPreviewSurfaceDestroyed(long ndkCamera, Surface surface);
 
     private native void deleteCamera(long ndkCamera, Surface surface);
+
+    private native void onFrameReady(long ndkCamera, Surface surface);
 
     static {
         System.loadLibrary("camera_textureview");
