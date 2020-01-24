@@ -137,11 +137,11 @@ Java_com_sample_textureview_ViewActivity_onPreviewSurfaceCreated(
  *   Listener to frame readiness
  */
 extern "C" JNIEXPORT void JNICALL
-Java_com_sample_camera_basic_CameraActivity_onFrameReady(
+Java_com_sample_textureview_ViewActivity_onFrameReady(
         JNIEnv * env, jobject instance, jlong ndkCameraObj, jobject surface) {
   ASSERT(ndkCameraObj && (jlong)pEngineObj == ndkCameraObj,
          "NativeObject should not be null Pointer");
-
+    LOGI("DEMO: Frame Ready!");
 }
 
 

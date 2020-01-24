@@ -35,7 +35,6 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.util.Size;
-import android.view.Window;
 import android.widget.FrameLayout;
 
 import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
@@ -114,12 +113,14 @@ public class ViewActivity extends Activity
                 cameraPreviewSize_.getHeight());
         surface_ = new Surface(surface);
         onPreviewSurfaceCreated(ndkCamera_, surface_);
-        surface.setOnFrameAvailableListener(this);
+        textureView_.getSurfaceTexture().setOnFrameAvailableListener(ViewActivity.this);
     }
 
 
     public void onFrameAvailable(SurfaceTexture surface){
+        Log.i("DEMO", "onFrameAvailable: executed!");
         onFrameReady(ndkCamera_, surface_);
+        surface.updateTexImage();
     }
 
 
