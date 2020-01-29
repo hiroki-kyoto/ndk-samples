@@ -21,6 +21,7 @@
 #include <cstdio>
 #include "camera_engine.h"
 #include "utils/native_debug.h"
+#include "opencv2/core.hpp"
 
 /**
  * constructor and destructor for main application class
@@ -48,7 +49,7 @@ struct android_app* CameraEngine::AndroidApp(void) const {
 }
 
 /**
- * Create a camera object for onboard BACK_FACING camera
+ * Create a camera object for onboard FRONT_FACING camera
  */
 void CameraEngine::CreateCamera(void) {
   // Camera needed to be requested at the run-time from Java SDK
@@ -67,8 +68,9 @@ void CameraEngine::CreateCamera(void) {
   int32_t facing = 0, angle = 0, imageRotation = 0;
   if (camera_->GetSensorOrientation(&facing, &angle)) {
     if (facing == ACAMERA_LENS_FACING_FRONT) {
-      imageRotation = (angle + rotation_) % 360;
-      imageRotation = (360 - imageRotation) % 360;
+        // worked for RedMi Note 7
+        imageRotation = (angle + rotation_) % 360;
+        LOGE("CAMERA DEMO: imageRotation=%d", imageRotation);
     } else {
       imageRotation = (angle - rotation_ + 360) % 360;
     }
@@ -87,8 +89,10 @@ void CameraEngine::CreateCamera(void) {
       app_->window, portraitNativeWindow ? view.height : view.width,
       portraitNativeWindow ? view.width : view.height, WINDOW_FORMAT_RGBA_8888);
 
+  // create image reader for preview mode
   yuvReader_ = new ImageReader(&view, AIMAGE_FORMAT_YUV_420_888);
   yuvReader_->SetPresentRotation(imageRotation);
+  // create image reader for capture mode
   jpgReader_ = new ImageReader(&capture, AIMAGE_FORMAT_JPEG);
   jpgReader_->SetPresentRotation(imageRotation);
   jpgReader_->RegisterCallback(this, [this](void* ctx, const char* str) -> void {
@@ -154,19 +158,18 @@ void CameraEngine::OnCameraParameterChanged(int32_t code, int64_t val) {
  */
 void CameraEngine::DrawFrame(void) {
   if (!cameraReady_ || !yuvReader_) return;
-  AImage* image = yuvReader_->GetNextImage();
+  //AImage* image = yuvReader_->GetNextImage();
+  AImage * image = yuvReader_->GetLatestImage();
   if (!image) {
     return;
   }
-
   ANativeWindow_acquire(app_->window);
   ANativeWindow_Buffer buf;
   if (ANativeWindow_lock(app_->window, &buf, nullptr) < 0) {
     yuvReader_->DeleteImage(image);
     return;
   }
-
-  yuvReader_->DisplayImage(&buf, image);
+  yuvReader_->DisplayImage(&buf, image, ACAMERA_LENS_FACING_FRONT);
   ANativeWindow_unlockAndPost(app_->window);
   ANativeWindow_release(app_->window);
 }

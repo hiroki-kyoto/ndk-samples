@@ -182,6 +182,8 @@ bool NDKCamera::MatchCaptureSizeRequest(ANativeWindow* display,
   bool foundIt = false;
   DisplayDimension foundRes(4000, 4000);
   DisplayDimension maxJPG(0, 0);
+  DisplayDimension targetRes(480, 360);
+  bool targetPreviewSizeFound = false;
 
   for (int i = 0; i < entry.count; i += 4) {
     int32_t input = entry.data.i32[i + 3];
@@ -191,10 +193,19 @@ bool NDKCamera::MatchCaptureSizeRequest(ANativeWindow* display,
     if (format == AIMAGE_FORMAT_YUV_420_888 || format == AIMAGE_FORMAT_JPEG) {
       DisplayDimension res(entry.data.i32[i + 1],
                            entry.data.i32[i + 2]);
-      if (!disp.IsSameRatio(res)) continue;
-      if (format == AIMAGE_FORMAT_YUV_420_888 && foundRes > res) {
+      LOGW("Size: (%d, %d)", res.width(), res.height());
+      if ( res == targetRes ){
+        targetPreviewSizeFound = true;
         foundIt = true;
         foundRes = res;
+        continue;
+      }
+      //if (!disp.IsSameRatio(res)) continue;
+      if (format == AIMAGE_FORMAT_YUV_420_888 && foundRes > res) {
+        if (!targetPreviewSizeFound) {
+          foundIt = true;
+          foundRes = res;
+        }
       } else if (format == AIMAGE_FORMAT_JPEG && res > maxJPG) {
         maxJPG = res;
       }
@@ -217,6 +228,11 @@ bool NDKCamera::MatchCaptureSizeRequest(ANativeWindow* display,
     }
     *resCap = *resView;
   }
+
+  // display the final selected resolution
+  LOGE("Preview Size: (%d, %d)", resView->width, resView->height);
+  LOGE("Capture Size: (%d, %d)", resCap->width, resCap->height);
+
   resView->format = AIMAGE_FORMAT_YUV_420_888;
   resCap->format = AIMAGE_FORMAT_JPEG;
   return foundIt;
@@ -331,7 +347,7 @@ void NDKCamera::EnumerateCamera() {
         cam.owner_ = false;
         cam.device_ = nullptr;
         cameras_[cam.id_] = cam;
-        if (cam.facing_ == ACAMERA_LENS_FACING_BACK) {
+        if (cam.facing_ == ACAMERA_LENS_FACING_FRONT) {
           activeCameraId_ = cam.id_;
         }
         break;
@@ -436,8 +452,10 @@ void NDKCamera::UpdateCameraRequestParameter(int32_t code, int64_t val) {
       return;
   }
 
-  uint8_t aeModeOff = ACAMERA_CONTROL_AE_MODE_OFF;
-  CALL_REQUEST(setEntry_u8(request, ACAMERA_CONTROL_AE_MODE, 1, &aeModeOff));
+    uint8_t aeModeOff = ACAMERA_CONTROL_AE_MODE_OFF;
+    CALL_REQUEST(setEntry_u8(request, ACAMERA_CONTROL_AE_MODE, 1, &aeModeOff));
+//    uint8_t aeModeOn = ACAMERA_CONTROL_AE_MODE_ON;
+//    CALL_REQUEST(setEntry_u8(request, ACAMERA_CONTROL_AE_MODE, 1, &aeModeOn));
   CALL_SESSION(
       setRepeatingRequest(captureSession_, nullptr, 1, &request,
                           &requests_[PREVIEW_REQUEST_IDX].sessionSequenceId_));

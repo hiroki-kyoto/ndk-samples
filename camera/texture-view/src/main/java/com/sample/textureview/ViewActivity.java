@@ -25,6 +25,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -41,7 +42,6 @@ import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
 
 public class ViewActivity extends Activity
         implements TextureView.SurfaceTextureListener,
-        SurfaceTexture.OnFrameAvailableListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
     long ndkCamera_;
     private TextureView textureView_;
@@ -113,14 +113,6 @@ public class ViewActivity extends Activity
                 cameraPreviewSize_.getHeight());
         surface_ = new Surface(surface);
         onPreviewSurfaceCreated(ndkCamera_, surface_);
-        textureView_.getSurfaceTexture().setOnFrameAvailableListener(ViewActivity.this);
-    }
-
-
-    public void onFrameAvailable(SurfaceTexture surface){
-        Log.i("DEMO", "onFrameAvailable: executed!");
-        onFrameReady(ndkCamera_, surface_);
-        surface.updateTexImage();
     }
 
 
@@ -265,8 +257,6 @@ public class ViewActivity extends Activity
     private native void onPreviewSurfaceDestroyed(long ndkCamera, Surface surface);
 
     private native void deleteCamera(long ndkCamera, Surface surface);
-
-    private native void onFrameReady(long ndkCamera, Surface surface);
 
     static {
         System.loadLibrary("camera_textureview");

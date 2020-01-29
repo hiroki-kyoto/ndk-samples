@@ -133,20 +133,6 @@ Java_com_sample_textureview_ViewActivity_onPreviewSurfaceCreated(
 
 
 /**
- * OnFrameReady()
- *   Listener to frame readiness
- */
-extern "C" JNIEXPORT void JNICALL
-Java_com_sample_textureview_ViewActivity_onFrameReady(
-        JNIEnv * env, jobject instance, jlong ndkCameraObj, jobject surface) {
-  ASSERT(ndkCameraObj && (jlong)pEngineObj == ndkCameraObj,
-         "NativeObject should not be null Pointer");
-    LOGI("DEMO: Frame Ready!");
-}
-
-
-
-/**
  * OnPreviewSurfaceDestroyed()
  *   Notification to native camera that java TextureView is destroyed
  *   Native camera would:

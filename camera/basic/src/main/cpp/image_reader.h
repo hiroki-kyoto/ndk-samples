@@ -18,6 +18,7 @@
 #define CAMERA_IMAGE_READER_H
 #include <media/NdkImageReader.h>
 #include <functional>
+#include <camera/NdkCameraMetadataTags.h>
 /*
  * ImageFormat:
  *     A Data Structure to communicate resolution between camera and ImageReader
@@ -80,7 +81,7 @@ class ImageReader {
    *            it will be deleted via {@link AImage_delete}
    *   @return true on success, false on failure
    */
-  bool DisplayImage(ANativeWindow_Buffer* buf, AImage* image);
+  bool DisplayImage(ANativeWindow_Buffer* buf, AImage* image, acamera_metadata_enum_acamera_lens_facing facing);
   /**
    * Configure the rotation angle necessary to apply to
    * Camera image when presenting: all rotations should be accumulated:
@@ -106,7 +107,7 @@ class ImageReader {
   void PresentImage(ANativeWindow_Buffer* buf, AImage* image);
   void PresentImage90(ANativeWindow_Buffer* buf, AImage* image);
   void PresentImage180(ANativeWindow_Buffer* buf, AImage* image);
-  void PresentImage270(ANativeWindow_Buffer* buf, AImage* image);
+  void PresentImage270(ANativeWindow_Buffer* buf, AImage* image, acamera_metadata_enum_acamera_lens_facing facing);
 
   void WriteFile(AImage* image);
 };

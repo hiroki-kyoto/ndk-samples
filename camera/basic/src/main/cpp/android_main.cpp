@@ -16,6 +16,7 @@
 
 #include "camera_engine.h"
 #include "utils/native_debug.h"
+#include "opencv2/core.hpp"
 
 /*
  * SampleEngine global object
@@ -57,6 +58,7 @@ static void ProcessAndroidCmd(struct android_app* app, int32_t cmd) {
 }
 
 extern "C" void android_main(struct android_app* state) {
+  double tick_beg, tick_end, tick_freq = cv::getTickFrequency();
   CameraEngine engine(state);
   pEngineObj = &engine;
 
@@ -68,7 +70,7 @@ extern "C" void android_main(struct android_app* state) {
     // Read all pending events.
     int events;
     struct android_poll_source* source;
-
+    tick_beg = cv::getTickCount();
     while (ALooper_pollAll(0, NULL, &events, (void**)&source) >= 0) {
       // Process this event.
       if (source != NULL) {
@@ -84,6 +86,8 @@ extern "C" void android_main(struct android_app* state) {
       }
     }
     pEngineObj->DrawFrame();
+    tick_end = cv::getTickCount();
+    //LOGE("Draw Frame: %.3f ms", 1000*(tick_end - tick_beg) / tick_freq);
   }
 }
 
