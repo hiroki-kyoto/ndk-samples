@@ -272,13 +272,16 @@ void NDKCamera::CreateSession(ANativeWindow* previewWindow,
    * the capture parameters, this sample leaves JPG capture to be auto mode
    * (auto control has better effect than author's manual control)
    */
-  uint8_t aeModeOff = ACAMERA_CONTROL_AE_MODE_OFF;
-  CALL_REQUEST(setEntry_u8(requests_[PREVIEW_REQUEST_IDX].request_,
-                           ACAMERA_CONTROL_AE_MODE, 1, &aeModeOff));
-  CALL_REQUEST(setEntry_i32(requests_[PREVIEW_REQUEST_IDX].request_,
-                            ACAMERA_SENSOR_SENSITIVITY, 1, &sensitivity_));
-  CALL_REQUEST(setEntry_i64(requests_[PREVIEW_REQUEST_IDX].request_,
-                            ACAMERA_SENSOR_EXPOSURE_TIME, 1, &exposureTime_));
+//  uint8_t aeModeOff = ACAMERA_CONTROL_AE_MODE_OFF;
+//  CALL_REQUEST(setEntry_u8(requests_[PREVIEW_REQUEST_IDX].request_,
+//                           ACAMERA_CONTROL_AE_MODE, 1, &aeModeOff));
+//  CALL_REQUEST(setEntry_i32(requests_[PREVIEW_REQUEST_IDX].request_,
+//                            ACAMERA_SENSOR_SENSITIVITY, 1, &sensitivity_));
+//  CALL_REQUEST(setEntry_i64(requests_[PREVIEW_REQUEST_IDX].request_,
+//                            ACAMERA_SENSOR_EXPOSURE_TIME, 1, &exposureTime_));
+    uint8_t aeModeOn = ACAMERA_CONTROL_AE_MODE_ON;
+    CALL_REQUEST(setEntry_u8(requests_[PREVIEW_REQUEST_IDX].request_,
+                             ACAMERA_CONTROL_AE_MODE, 1, &aeModeOn));
 }
 
 NDKCamera::~NDKCamera() {

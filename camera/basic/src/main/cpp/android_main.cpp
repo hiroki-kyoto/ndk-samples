@@ -87,7 +87,7 @@ extern "C" void android_main(struct android_app* state) {
     }
     pEngineObj->DrawFrame();
     tick_end = cv::getTickCount();
-    //LOGE("Draw Frame: %.3f ms", 1000*(tick_end - tick_beg) / tick_freq);
+    LOGE("Draw Frame: %.3f ms", 1000*(tick_end - tick_beg) / tick_freq);
   }
 }
 
@@ -108,7 +108,7 @@ void CameraEngine::OnAppInitWindow(void) {
   CreateCamera();
   ASSERT(camera_, "CameraCreation Failed");
 
-  EnableUI();
+  //EnableUI();
 
   // NativeActivity end is ready to display, start pulling images
   cameraReady_ = true;

@@ -22,6 +22,9 @@
 #include "image_reader.h"
 #include "utils/native_debug.h"
 
+#include "opencv2/core.hpp"
+#include "opencv2/imgproc.hpp"
+
 /*
  * For JPEG capture, captured files are saved under
  *     DirName
@@ -361,6 +364,8 @@ void ImageReader::PresentImage180(ANativeWindow_Buffer *buf, AImage *image) {
   }
 }
 
+
+/// core procedure here!!!
 /*
  * PresentImage270()
  *   Converting image from YUV to RGB
@@ -416,6 +421,14 @@ void ImageReader::PresentImage270(ANativeWindow_Buffer *buf, AImage *image, acam
       }
       out -= 1;  // move to the next column
     }
+    // use opencv modules to process this frame
+    cv::Mat im_;
+    im_.create(cv::Size(buf->width, buf->height), CV_8UC4);
+    uint8_t * dst = static_cast<uint8_t *>(buf->bits);
+    uint8_t * src = static_cast<uint8_t *>(im_.data);
+    memcpy(dst, src, 4*buf->width * buf->height);
+    //cv::medianBlur(im_, im_, 5);
+    memcpy(src, dst, 4*buf->width * buf->height);
   }
 }
 void ImageReader::SetPresentRotation(int32_t angle) {
