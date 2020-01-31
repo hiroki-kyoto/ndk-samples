@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <dirent.h>
 #include <ctime>
+#include <vector>
+
 #include "image_reader.h"
 #include "utils/native_debug.h"
 
@@ -406,29 +408,34 @@ void ImageReader::PresentImage270(ANativeWindow_Buffer *buf, AImage *image, acam
       out += 1;  // move to the next column
     }
   } else { // facing front
-      out += (buf->width - 1);
+    out += (buf->width - 1);
     for (int32_t y = 0; y < height; y++) {
-      const uint8_t *pY = yPixel + yStride * (y + srcRect.top) + srcRect.left;
+        const uint8_t *pY = yPixel + yStride * (y + srcRect.top) + srcRect.left;
+        int32_t uv_row_start = uvStride * ((y + srcRect.top) >> 1);
+        const uint8_t *pU = uPixel + uv_row_start + (srcRect.left >> 1);
+        const uint8_t *pV = vPixel + uv_row_start + (srcRect.left >> 1);
 
-      int32_t uv_row_start = uvStride * ((y + srcRect.top) >> 1);
-      const uint8_t *pU = uPixel + uv_row_start + (srcRect.left >> 1);
-      const uint8_t *pV = vPixel + uv_row_start + (srcRect.left >> 1);
-
-      for (int32_t x = 0; x < width; x++) {
-        const int32_t uv_offset = (x >> 1) * uvPixelStride;
-        out[(width - 1 - x) * buf->stride] =
+        for (int32_t x = 0; x < width; x++) {
+            const int32_t uv_offset = (x >> 1) * uvPixelStride;
+            out[(width - 1 - x) * buf->stride] =
                 YUV2RGB(pY[x], pU[uv_offset], pV[uv_offset]);
-      }
-      out -= 1;  // move to the next column
+        }
+        out -= 1;  // move to the next column
     }
     // use opencv modules to process this frame
     cv::Mat im_;
-    im_.create(cv::Size(buf->width, buf->height), CV_8UC4);
+    LOGE("Size of frame: (%d, %d)", width, height);
+    LOGE("buf->stride: %d", buf->stride);
+    im_.create(cv::Size(width, buf->stride), CV_8UC4);
     uint8_t * dst = static_cast<uint8_t *>(buf->bits);
     uint8_t * src = static_cast<uint8_t *>(im_.data);
-    memcpy(dst, src, 4*buf->width * buf->height);
-    //cv::medianBlur(im_, im_, 5);
-    memcpy(src, dst, 4*buf->width * buf->height);
+    memcpy(src, dst, 4 * width * buf->stride);
+    /// process the RED CHANNEL
+    std::vector<cv::Mat> chn_RGBA;
+    cv::split(im_, chn_RGBA);
+
+    cv::merge(chn_RGBA, im_);
+    memcpy(dst, src, 4 * width * buf->stride);
   }
 }
 void ImageReader::SetPresentRotation(int32_t angle) {
