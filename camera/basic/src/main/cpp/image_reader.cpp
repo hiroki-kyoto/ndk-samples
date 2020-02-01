@@ -423,19 +423,25 @@ void ImageReader::PresentImage270(ANativeWindow_Buffer *buf, AImage *image, acam
         out -= 1;  // move to the next column
     }
     // use opencv modules to process this frame
-    cv::Mat im_;
-    LOGE("Size of frame: (%d, %d)", width, height);
-    LOGE("buf->stride: %d", buf->stride);
-    im_.create(cv::Size(width, buf->stride), CV_8UC4);
+    cv::Mat im_, frame_;
+    cv::Rect roi;
+    int h_, w_, w_full;
+    h_ = width;
+    w_ = height;
+    w_full = buf->stride;
+    im_.create(cv::Size(w_full, h_), CV_8UC4);
+    roi.x = 0;
+    roi.y = 0;
+    roi.width = w_;
+    roi.height = h_;
+
     uint8_t * dst = static_cast<uint8_t *>(buf->bits);
     uint8_t * src = static_cast<uint8_t *>(im_.data);
-    memcpy(src, dst, 4 * width * buf->stride);
-    /// process the RED CHANNEL
-    std::vector<cv::Mat> chn_RGBA;
-    cv::split(im_, chn_RGBA);
 
-    cv::merge(chn_RGBA, im_);
-    memcpy(dst, src, 4 * width * buf->stride);
+    memcpy(src, dst, 4 * h_ * w_full);
+    frame_ = im_(roi);
+    cv::medianBlur(frame_, frame_, 5);
+    memcpy(dst, src, 4 * h_ * w_full);
   }
 }
 void ImageReader::SetPresentRotation(int32_t angle) {
